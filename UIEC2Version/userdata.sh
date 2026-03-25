@@ -1,15 +1,21 @@
 #!/bin/bash
 
 yum update -y
+yum install -y git nginx
 
 curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
-yum install -y nodejs git nginx
+yum install -y nodejs
 
 cd /home/ec2-user
 
 git clone https://github.com/514-2255-2-team2/AmplifyUI
 
-cd YOUR_REPO/Amplify-React-UI
+cd AmplifyUI/Amplify-React-UI
+
+cat <<EOF > .env
+VITE_IMAGE_UPLOAD_URL=${image_upload_url}/upload
+VITE_S3_BUCKET_URL=${s3_bucket_url}
+EOF
 
 npm install
 npm run build
