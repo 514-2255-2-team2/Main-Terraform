@@ -1,0 +1,20 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.lock.hcl
+
+# Keep or remove depending on class/team preference
+# Usually KEEP this committed:
+# .terraform.lock.hcl
+
+# Build artifacts
+*.zip
+
+# macOS
+.DS_Store
