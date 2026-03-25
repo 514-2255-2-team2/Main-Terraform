@@ -6,7 +6,7 @@ import boto3
 import re
 from urllib.parse import urlparse
 
-BUCKET = os.environ.get("BUCKET_NAME", "athlete-photos-team2")
+BUCKET = os.environ.get("BUCKET_NAME", "rit-athlete-photos-team2")
 rek = boto3.client("rekognition")
 
 # so the react page can call this from anywhere

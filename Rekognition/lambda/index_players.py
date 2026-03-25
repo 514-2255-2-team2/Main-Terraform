@@ -8,7 +8,7 @@ import re
 from urllib.parse import urlparse
 
 TABLE_NAME = os.environ.get("TABLE_NAME", "Players")
-BUCKET_NAME = os.environ.get("BUCKET_NAME", "athlete-photos-team2")
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "rit-athlete-photos-team2")
 FACE_KEY = "face_id"
 
 ddb = boto3.resource("dynamodb")
