@@ -160,6 +160,16 @@ data "aws_iam_policy_document" "search_policy" {
 
     resources = ["*"]
   }
+
+  statement {
+    sid = "CloudWatchPutMetrics"
+
+    actions = [
+      "cloudwatch:PutMetricData"
+    ]
+
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "search_inline" {
@@ -288,13 +298,73 @@ resource "aws_lambda_function" "search" {
 
   environment {
     variables = {
-      BUCKET_NAME = aws_s3_bucket.user_uploads.bucket
+      BUCKET_NAME         = aws_s3_bucket.user_uploads.bucket
+      CW_METRIC_NAMESPACE = var.cw_metric_namespace
     }
   }
 
   depends_on = [
     aws_iam_role_policy_attachment.search_basic,
     aws_iam_role_policy.search_inline
+  ]
+}
+
+#
+# Search similarity alerts: SNS + CloudWatch alarm on custom metric
+#
+resource "aws_sns_topic" "search_similarity_alerts" {
+  name = "${var.project_name}-search-similarity-alerts"
+}
+
+resource "aws_sns_topic_subscription" "search_similarity_email" {
+  topic_arn = aws_sns_topic.search_similarity_alerts.arn
+  protocol  = "email"
+  endpoint  = var.alert_email
+}
+
+data "aws_iam_policy_document" "search_similarity_sns_policy" {
+  statement {
+    sid    = "AllowCloudWatchPublish"
+    effect = "Allow"
+
+    actions = [
+      "sns:Publish"
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudwatch.amazonaws.com"]
+    }
+
+    resources = [aws_sns_topic.search_similarity_alerts.arn]
+  }
+}
+
+resource "aws_sns_topic_policy" "search_similarity_alerts" {
+  arn    = aws_sns_topic.search_similarity_alerts.arn
+  policy = data.aws_iam_policy_document.search_similarity_sns_policy.json
+}
+
+resource "aws_cloudwatch_metric_alarm" "search_low_best_similarity" {
+  alarm_name          = "${var.project_name}-search-low-best-similarity"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "BestMatchSimilarity"
+  namespace           = var.cw_metric_namespace
+  period              = var.alarm_period_seconds
+  statistic           = "Minimum"
+  threshold           = var.similarity_alarm_threshold
+  treat_missing_data  = "notBreaching"
+  alarm_description   = "Best face-match similarity below ${var.similarity_alarm_threshold}% in the period (or no matches / 0)."
+  alarm_actions       = [aws_sns_topic.search_similarity_alerts.arn]
+
+  dimensions = {
+    FunctionName = aws_lambda_function.search.function_name
+  }
+
+  depends_on = [
+    aws_sns_topic_policy.search_similarity_alerts,
+    aws_sns_topic_subscription.search_similarity_email,
   ]
 }
 

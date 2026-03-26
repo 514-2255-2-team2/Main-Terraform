@@ -64,3 +64,26 @@ variable "invoke_index_on_apply" {
   type    = bool
   default = true
 }
+
+variable "alert_email" {
+  type        = string
+  description = "Email address for SNS subscription; confirm via link after apply."
+}
+
+variable "similarity_alarm_threshold" {
+  type        = number
+  default     = 10
+  description = "CloudWatch alarm fires when minimum best-match similarity in the period is below this (percent)."
+}
+
+variable "alarm_period_seconds" {
+  type        = number
+  default     = 60
+  description = "Alarm evaluation period; must be a multiple of 60 for standard-resolution metrics."
+}
+
+variable "cw_metric_namespace" {
+  type        = string
+  default     = "AthleteFaceSearch"
+  description = "Custom metric namespace; must match CW_METRIC_NAMESPACE on the search Lambda."
+}

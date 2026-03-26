@@ -6,8 +6,10 @@ import boto3
 import re
 from urllib.parse import urlparse
 
-BUCKET = os.environ.get("BUCKET_NAME", "rit-athlete-photos-team2")
+BUCKET = os.environ.get("BUCKET_NAME", "athlete-photos-team2")
+CW_METRIC_NAMESPACE = os.environ.get("CW_METRIC_NAMESPACE", "AthleteFaceSearch")
 rek = boto3.client("rekognition")
+cloudwatch = boto3.client("cloudwatch")
 
 # so the react page can call this from anywhere
 CORS = {
@@ -32,6 +34,25 @@ def parse_s3_uri(s3_uri):
     if p.scheme != "s3" or not p.netloc or not p.path:
         raise ValueError("bad s3 uri")
     return p.netloc, p.path.lstrip("/")
+
+
+def put_best_match_similarity_metric(best_similarity):
+    fn = os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or "unknown"
+    try:
+        cloudwatch.put_metric_data(
+            Namespace=CW_METRIC_NAMESPACE,
+            MetricData=[
+                {
+                    "MetricName": "BestMatchSimilarity",
+                    "Dimensions": [{"Name": "FunctionName", "Value": fn}],
+                    "Value": float(best_similarity),
+                    "Unit": "Percent",
+                }
+            ],
+        )
+    except Exception as e:
+        print(f"put_metric_data failed (non-fatal): {e}")
+
 
 def lambda_handler(event, context):
     try:
@@ -100,6 +121,9 @@ def lambda_handler(event, context):
         out = [{"player_id": p, "similarity": s} for p, s in best.items()]
         out.sort(key=lambda x: x["similarity"], reverse=True)
         out = out[:return_count] # returns return_count of players
+
+        best_similarity = float(out[0]["similarity"]) if out else 0.0
+        put_best_match_similarity_metric(best_similarity)
 
         return {"statusCode": 200, "headers": CORS, "body": json.dumps({"matches": out})}
     except Exception as e:

@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import boto3
 
 TABLE_NAME = os.environ.get("TABLE_NAME", "Players")
-BUCKET_NAME = os.environ.get("BUCKET_NAME", "rit-athlete-photos-team2")
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "athlete-photos-team2")
 SIGNED_URL_EXPIRES = int(os.environ.get("SIGNED_URL_EXPIRES", "3600"))
 
 ddb = boto3.resource("dynamodb")

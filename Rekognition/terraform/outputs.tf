@@ -37,3 +37,13 @@ output "player_details_lambda_name" {
 output "user_upload_bucket_name" {
   value = aws_s3_bucket.user_uploads.bucket
 }
+
+output "search_similarity_alert_sns_topic_arn" {
+  value       = aws_sns_topic.search_similarity_alerts.arn
+  description = "SNS topic ARN for low best-match similarity alarms."
+}
+
+output "search_similarity_alert_note" {
+  value       = "After apply, open the inbox for alert_email and confirm the AWS SNS subscription; unconfirmed subscriptions do not receive alarm emails."
+  description = "Operational reminder for SNS email confirmation."
+}
