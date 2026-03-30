@@ -507,7 +507,7 @@ def lambda_handler(event, context):
 if __name__ == "__main__":
     test_event = {
         "league": "nfl",
-        "bucket_name": "rit-athlete-photos-team2",
+        "bucket_name": "athlete-photos-team2",
         "table_name": "Players",
         "max_teams": 2,
         "resume": True,

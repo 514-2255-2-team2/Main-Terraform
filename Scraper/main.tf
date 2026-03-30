@@ -20,7 +20,7 @@ provider "aws" {
 # S3 Bucket – Player Images + Checkpoints
 # ──────────────────────────────────────────────
 resource "aws_s3_bucket" "athlete_photos" {
-  bucket = "rit-athlete-photos-team2"
+  bucket = "athlete-photos-team2"
   force_destroy = true
 
   tags = {
