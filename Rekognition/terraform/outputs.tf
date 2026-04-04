@@ -1,3 +1,15 @@
+output "s3_bucket_name" {
+  value = aws_s3_bucket.athlete_photos.bucket
+}
+
+output "dynamodb_table_name" {
+  value = aws_dynamodb_table.players.name
+}
+
+output "scraper_lambda_arn" {
+  value = aws_lambda_function.scraper.arn
+}
+
 output "api_base_url" {
   value = aws_apigatewayv2_stage.default.invoke_url
 }

@@ -13,13 +13,12 @@ variable "table_name" {
   default = "Players"
 }
 
-# existing player image bucket
+# Existing player image bucket (created by scraper, referenced by other lambdas)
 variable "bucket_name" {
   type    = string
   default = "athlete-photos-team2"
 }
 
-# new user upload bucket
 variable "user_upload_bucket_name" {
   type    = string
   default = ""
