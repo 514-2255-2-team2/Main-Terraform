@@ -92,31 +92,31 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 # ──────────────────────────────────────────────
 data "archive_file" "scraper_zip" {
   type        = "zip"
-  source_file = "${path.module}/../lambda/scrape_player_data.py"
+  source_file = "lambda/scrape_player_data.py"
   output_path = "${path.module}/scrape_player_data.zip"
 }
 
 data "archive_file" "indexer_zip" {
   type        = "zip"
-  source_file = "${path.module}/../lambda/index_players.py"
+  source_file = "lambda/index_players.py"
   output_path = "${path.module}/index_players.zip"
 }
 
 data "archive_file" "search_zip" {
   type        = "zip"
-  source_file = "${path.module}/../lambda/search_players.py"
+  source_file = "lambda/search_players.py"
   output_path = "${path.module}/search_players.zip"
 }
 
 data "archive_file" "upload_zip" {
   type        = "zip"
-  source_file = "${path.module}/../lambda/upload_user_image.py"
+  source_file = "lambda/upload_user_image.py"
   output_path = "${path.module}/upload_user_image.zip"
 }
 
 data "archive_file" "player_details_zip" {
   type        = "zip"
-  source_file = "${path.module}/../lambda/get_player_details.py"
+  source_file = "lambda/get_player_details.py"
   output_path = "${path.module}/get_player_details.zip"
 }
 
@@ -662,53 +662,56 @@ resource "terraform_data" "run_index_after_apply" {
     aws_lambda_function.indexer
   ]
 }
- #    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
- #   E C 2   I n s t a n c e   f o r   R e a c t   A p p 
- #    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
- r e s o u r c e   " a w s _ s e c u r i t y _ g r o u p "   " r e a c t _ a p p _ s g "   { 
-     n a m e   =   " r e a c t - a p p - s g " 
- 
-     i n g r e s s   { 
-         f r o m _ p o r t       =   2 2 
-         t o _ p o r t           =   2 2 
-         p r o t o c o l         =   " t c p " 
-         c i d r _ b l o c k s   =   [ " 0 . 0 . 0 . 0 / 0 " ] 
-     } 
- 
-     i n g r e s s   { 
-         f r o m _ p o r t       =   8 0 
-         t o _ p o r t           =   8 0 
-         p r o t o c o l         =   " t c p " 
-         c i d r _ b l o c k s   =   [ " 0 . 0 . 0 . 0 / 0 " ] 
-     } 
- 
-     i n g r e s s   { 
-         f r o m _ p o r t       =   4 4 3 
-         t o _ p o r t           =   4 4 3 
-         p r o t o c o l         =   " t c p " 
-         c i d r _ b l o c k s   =   [ " 0 . 0 . 0 . 0 / 0 " ] 
-     } 
- 
-     e g r e s s   { 
-         f r o m _ p o r t       =   0 
-         t o _ p o r t           =   0 
-         p r o t o c o l         =   " - 1 " 
-         c i d r _ b l o c k s   =   [ " 0 . 0 . 0 . 0 / 0 " ] 
-     } 
- } 
- 
- r e s o u r c e   " a w s _ i n s t a n c e "   " r e a c t _ a p p "   { 
-     a m i                       =   " a m i - 0 2 d f b d 4 f f 3 9 5 f 2 a 1 b " 
-     i n s t a n c e _ t y p e   =   " t 3 . m i c r o " 
- 
-     k e y _ n a m e   =   " N D L 3 3 8 9 _ V i r g i n i a _ 2 " 
- 
-     v p c _ s e c u r i t y _ g r o u p _ i d s   =   [ a w s _ s e c u r i t y _ g r o u p . r e a c t _ a p p _ s g . i d ] 
- 
-     u s e r _ d a t a   =   f i l e ( " u s e r d a t a . s h " ) 
- 
-     t a g s   =   { 
-         N a m e   =   " r e a c t - a p p - s e r v e r " 
-     } 
- }  
- 
+
+# ----------------------------------------------
+# EC2 Instance for React App
+# ----------------------------------------------
+resource "aws_security_group" "react_app_sg" {
+  name = "react-app-sg"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "react_app" {
+  ami           = "ami-02dfbd4ff395f2a1b"
+  instance_type = "t3.micro"
+  key_name      = "NDL3389_Virginia_2"
+
+  vpc_security_group_ids = [aws_security_group.react_app_sg.id]
+
+  user_data = templatefile("userdata.sh.tpl", { api_base_url = aws_apigatewayv2_stage.default.invoke_url })
+
+  tags = {
+    Name = "react-app-server"
+  }
+
+  depends_on = [
+    aws_apigatewayv2_stage.default
+  ]
+}

@@ -13,7 +13,7 @@ git clone https://github.com/514-2255-2-team2/AmplifyUI
 cd AmplifyUI/Amplify-React-UI
 
 cat <<EOF > .env
-VITE_API_BASE_URL=REPLACE_WITH_API_URL_AFTER_TERRAFORM_APPLY
+VITE_API_BASE_URL=${api_base_url}
 EOF
 
 npm install
