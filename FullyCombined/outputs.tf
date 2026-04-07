@@ -64,8 +64,3 @@ output "search_similarity_alert_note" {
   value       = "After apply, open the inbox for alert_email and confirm the AWS SNS subscription; unconfirmed subscriptions do not receive alarm emails."
   description = "Operational reminder for SNS email confirmation."
 }
-
-output "setup_api_url_instruction" {
-  value       = "After terraform apply, SSH into the EC2 instance and run: sed -i 's|REPLACE_WITH_API_URL_AFTER_TERRAFORM_APPLY|<insert-api-base-url-here>|g' /home/ec2-user/AmplifyUI/Amplify-React-UI/.env && cd /home/ec2-user/AmplifyUI/Amplify-React-UI && npm run build"
-  description = "Instructions to update API URL in .env and rebuild React app. Replace <insert-api-base-url-here> with the value from api_base_url output."
-}

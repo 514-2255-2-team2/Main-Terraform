@@ -13,6 +13,8 @@ git clone https://github.com/514-2255-2-team2/AmplifyUI
 cd AmplifyUI/Amplify-React-UI
 
 cat <<EOF > .env
+VITE_IMAGE_UPLOAD_URL=${image_upload_url}/upload
+VITE_S3_BUCKET_URL=${s3_bucket_url}
 VITE_API_BASE_URL=${api_base_url}
 EOF
 

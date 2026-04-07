@@ -705,7 +705,7 @@ resource "aws_instance" "react_app" {
 
   vpc_security_group_ids = [aws_security_group.react_app_sg.id]
 
-  user_data = templatefile("userdata.sh.tpl", { api_base_url = aws_apigatewayv2_stage.default.invoke_url })
+  user_data = templatefile("userdata.sh.tpl", { api_base_url = aws_apigatewayv2_stage.default.invoke_url, image_upload_url = aws_apigatewayv2_stage.default.invoke_url, s3_bucket_url = "https://${aws_s3_bucket.user_uploads.bucket}.s3.amazonaws.com" })
 
   tags = {
     Name = "react-app-server"
