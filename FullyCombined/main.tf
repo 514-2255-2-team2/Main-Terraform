@@ -658,8 +658,11 @@ resource "terraform_data" "run_index_after_apply" {
     EOT
   }
 
+  # Must run after scraper finishes: otherwise the indexer scan sees only early
+  # teams (e.g. Bills) and Chiefs rows added later never get face_id until /index is called again.
   depends_on = [
-    aws_lambda_function.indexer
+    aws_lambda_function.indexer,
+    aws_lambda_invocation.run_scraper,
   ]
 }
 
