@@ -14,7 +14,7 @@ cd Main-Terraform/FullyCombined
 Use an existing key pair or create a new one. Replace `YOUR_KEY` near the bottom of main.tf with the name of your key pair, then run:
 
 ```bash
-sed -i 's/key_name = .*/key_name = "YOUR_KEY"/' main.tf
+sed -i 's/.*key_name.*/  key_name      = "YOUR_KEY"/' main.tf
 ```
 
 Confirm the change was applied:
