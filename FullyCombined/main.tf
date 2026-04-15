@@ -6,7 +6,8 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  user_upload_bucket_name = var.user_upload_bucket_name != "" ? var.user_upload_bucket_name : "${var.project_name}-user-uploads-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
+  athlete_photos_bucket_name = var.bucket_name != "" ? var.bucket_name : "${var.project_name}-athlete-photos-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
+  user_upload_bucket_name     = var.user_upload_bucket_name != "" ? var.user_upload_bucket_name : "${var.project_name}-user-uploads-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
 }
 
 # ──────────────────────────────────────────────
@@ -15,7 +16,7 @@ locals {
 
 # Athlete photos bucket (used by scraper, indexer, and player-details lambdas)
 resource "aws_s3_bucket" "athlete_photos" {
-  bucket        = var.bucket_name
+  bucket        = local.athlete_photos_bucket_name
   force_destroy = true
 
   tags = {
@@ -205,7 +206,7 @@ data "aws_iam_policy_document" "indexer_policy" {
   statement {
     sid       = "S3ReadImages"
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::${var.bucket_name}/*"]
+    resources = ["${aws_s3_bucket.athlete_photos.arn}/*"]
   }
 
   statement {
@@ -312,7 +313,7 @@ data "aws_iam_policy_document" "player_details_policy" {
   statement {
     sid       = "S3ReadPlayerImages"
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::${var.bucket_name}/*"]
+    resources = ["${aws_s3_bucket.athlete_photos.arn}/*"]
   }
 }
 
@@ -388,7 +389,7 @@ resource "aws_lambda_function" "indexer" {
   environment {
     variables = {
       TABLE_NAME  = var.table_name
-      BUCKET_NAME = var.bucket_name
+      BUCKET_NAME = aws_s3_bucket.athlete_photos.bucket
     }
   }
 
@@ -459,7 +460,7 @@ resource "aws_lambda_function" "player_details" {
   environment {
     variables = {
       TABLE_NAME         = var.table_name
-      BUCKET_NAME        = var.bucket_name
+      BUCKET_NAME        = aws_s3_bucket.athlete_photos.bucket
       SIGNED_URL_EXPIRES = tostring(var.player_image_url_expires)
     }
   }
@@ -645,7 +646,7 @@ resource "terraform_data" "run_index_after_apply" {
   triggers_replace = {
     code_hash   = data.archive_file.indexer_zip.output_base64sha256
     table_name  = var.table_name
-    bucket_name = var.bucket_name
+    bucket_name = aws_s3_bucket.athlete_photos.bucket
   }
 
   provisioner "local-exec" {

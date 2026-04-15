@@ -13,10 +13,12 @@ variable "table_name" {
   default = "Players"
 }
 
-# Existing player image bucket (created by scraper, referenced by other lambdas)
+# Athlete photo bucket. Leave empty to use a unique name derived from project_name,
+# AWS account ID, and aws_region (avoids global S3 name collisions).
 variable "bucket_name" {
-  type    = string
-  default = "athlete-photos-team2"
+  type        = string
+  default     = ""
+  description = "S3 bucket for scraped athlete images. If empty, Terraform uses project_name + AWS account ID + aws_region so the name is unique per account/region."
 }
 
 variable "user_upload_bucket_name" {
