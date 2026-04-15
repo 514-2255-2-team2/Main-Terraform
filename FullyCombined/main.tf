@@ -705,7 +705,7 @@ resource "aws_security_group" "react_app_sg" {
 resource "aws_instance" "react_app" {
   ami           = "ami-02dfbd4ff395f2a1b"
   instance_type = "t3.micro"
-  key_name      = "NDL3389_Virginia_2"
+  key_name      = "YOUR_KEY"
 
   vpc_security_group_ids = [aws_security_group.react_app_sg.id]
 
