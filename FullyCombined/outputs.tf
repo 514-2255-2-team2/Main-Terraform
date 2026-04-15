@@ -1,3 +1,4 @@
+/*
 output "s3_bucket_name" {
   value = aws_s3_bucket.athlete_photos.bucket
 }
@@ -49,12 +50,14 @@ output "player_details_lambda_name" {
 output "user_upload_bucket_name" {
   value = aws_s3_bucket.user_uploads.bucket
 }
+*/
 
 output "react_app_public_ip" {
   value       = aws_instance.react_app.public_ip
   description = "Public IP of the React app EC2 instance"
 }
 
+/*
 output "search_similarity_alert_sns_topic_arn" {
   value       = aws_sns_topic.search_similarity_alerts.arn
   description = "SNS topic ARN for low best-match similarity alarms."
@@ -64,3 +67,4 @@ output "search_similarity_alert_note" {
   value       = "After apply, open the inbox for alert_email and confirm the AWS SNS subscription; unconfirmed subscriptions do not receive alarm emails."
   description = "Operational reminder for SNS email confirmation."
 }
+*/
